@@ -19,20 +19,68 @@ from rest_framework.response import Response
 from rest_framework import generics
 
 # Register API
+from django.core.files import File
+
+from django.core.files import File
+
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        user_details = UserDetails.objects.create(user=user, bio='', is_email_verified=True)
+
+        # Get the validated data from the serializer
+        validated_data = serializer.validated_data
+
+        # Create the user instance
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        password = validated_data['password']
+        if len(password) <8:
+             return Response({"error": "password should be greater than 8 characters"}, status=status.HTTP_400_BAD_REQUEST)
+        elif(any(char.isalpha() for char in password) == False):
+            return Response({"error": "password should contain atleast 1 alphabet"}, status=status.HTTP_400_BAD_REQUEST)
+        elif(any(char.isupper() for char in password) == False):
+            return Response({"error": "password should contain atleast 1 uppercase letter"}, status=status.HTTP_400_BAD_REQUEST)
+        elif(any(char.islower() for char in password) == False):
+            return Response({"error": "password should contain atleast 1 lowercase letter"}, status=status.HTTP_400_BAD_REQUEST)
+        elif(any(char.isdigit() for char in password) == False):
+            return Response({"error": "password should contain atleast 1 digit"}, status=status.HTTP_400_BAD_REQUEST)
+        elif all(x not in specialCharacters for x in password):
+            return Response({"error": "password should contain atleast 1 special character"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # Check if profile_picture field exists in the request data
+        if 'profile_picture' in request.data:
+            profile_picture = request.data['profile_picture']
+
+            # Create the UserDetails instance with profile picture
+            user_details = UserDetails.objects.create(
+                user=user,
+                bio='',
+                is_email_verified=True,
+                profile_picture=profile_picture
+            )
+        else:
+            # Create the UserDetails instance without profile picture
+            user_details = UserDetails.objects.create(
+                user=user,
+                bio='',
+                is_email_verified=True
+            )
+
         token = default_token_generator.make_token(user)
-        # send_mail(user, token)
+
         return Response({
-        "user": UserSerializer(user, context=self.get_serializer_context()).data,
-        "token": AuthToken.objects.create(user)[1]
+            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "token": AuthToken.objects.create(user)[1]
         })
+
+
 
 #Login API
 class LoginAPI(KnoxLoginView):
