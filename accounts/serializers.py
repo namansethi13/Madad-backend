@@ -9,9 +9,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 # Register Serializer
 class RegisterSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(required=False)
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password')
+        fields = ('id', 'username', 'email', 'password','profile_picture')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
