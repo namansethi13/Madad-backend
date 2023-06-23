@@ -17,6 +17,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated   
 from rest_framework.response import Response
 from rest_framework import generics
+specialCharacters="!@#$%^&*?//"
 
 # Register API
 from django.core.files import File
@@ -34,11 +35,7 @@ class RegisterAPI(generics.GenericAPIView):
         validated_data = serializer.validated_data
 
         # Create the user instance
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
+        
         password = validated_data['password']
         if len(password) <8:
              return Response({"error": "password should be greater than 8 characters"}, status=status.HTTP_400_BAD_REQUEST)
@@ -53,7 +50,11 @@ class RegisterAPI(generics.GenericAPIView):
         elif all(x not in specialCharacters for x in password):
             return Response({"error": "password should contain atleast 1 special character"}, status=status.HTTP_400_BAD_REQUEST)
 
-
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
         # Check if profile_picture field exists in the request data
         if 'profile_picture' in request.data:
             profile_picture = request.data['profile_picture']

@@ -7,7 +7,7 @@ class Donation(models.Model):
     item_name = models.CharField(max_length=200)
     item_desc = models.CharField(max_length=500,null=True)
     createdby=models.ForeignKey(User, on_delete=models.CASCADE)
-    #Profile=models.ImageField(upload_to='events',null=True)
+    item_picture=models.ImageField(upload_to='item_pictures',null=True)
     Location=models.TextField()
     posted_date=models.DateField("startdate(mm/dd/yyyy)",auto_now_add=False,auto_now=False,blank=True)
     # end_date=models.DateField("enddate(mm/dd/yyyy)",auto_now_add=False,auto_now=False,blank=True)

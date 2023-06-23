@@ -17,7 +17,7 @@ def createdonation(request):
     if serializer.is_valid():
         validated_data=serializer.validated_data
         user=User.objects.get(id=request.user.id)
-        instance=Donation.objects.create(createdby=user,item_name=validated_data['item_name'],item_desc=validated_data['item_desc'],Location=validated_data['Location'],posted_date=validated_data['posted_date'])
+        instance=Donation.objects.create(createdby=user,item_name=validated_data['item_name'],item_desc=validated_data['item_desc'],Location=validated_data['Location'],posted_date=validated_data['posted_date'],item_picture=request.data['item_picture'])
         instance.save()
         res = {'msg': 'created successfully'}
         return Response(res)
