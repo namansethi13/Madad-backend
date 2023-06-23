@@ -5,7 +5,8 @@ from rest_framework import permissions
 from .serializers import DonationSerializer,AllDonationSerializer
 from donations.models import Donation
 from django.contrib.auth.models import User
-
+import os
+import uuid
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
@@ -17,7 +18,12 @@ def createdonation(request):
     if serializer.is_valid():
         validated_data=serializer.validated_data
         user=User.objects.get(id=request.user.id)
-        instance=Donation.objects.create(createdby=user,item_name=validated_data['item_name'],item_desc=validated_data['item_desc'],Location=validated_data['Location'],posted_date=validated_data['posted_date'],item_picture=request.data['item_picture'])
+        item_picture = request.data['item_picture']
+        filename, ext = os.path.splitext(item_picture.name)
+        unique_filename = f"{request.user.username}_{validated_data['item_name']}_{uuid.uuid4().hex}{ext}"
+        request.data['item_picture'].name = unique_filename
+
+        instance=Donation.objects.create(createdby=user,item_name=validated_data['item_name'],item_desc=validated_data['item_desc'],Location=validated_data['Location'],item_picture=request.data['item_picture'])
         instance.save()
         res = {'msg': 'created successfully'}
         return Response(res)

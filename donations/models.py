@@ -9,7 +9,7 @@ class Donation(models.Model):
     createdby=models.ForeignKey(User, on_delete=models.CASCADE)
     item_picture=models.ImageField(upload_to='item_pictures',null=True)
     Location=models.TextField()
-    posted_date=models.DateField("startdate(mm/dd/yyyy)",auto_now_add=False,auto_now=False,blank=True)
+    posted_date=models.DateField("startdate(mm/dd/yyyy)",auto_now=True)
     # end_date=models.DateField("enddate(mm/dd/yyyy)",auto_now_add=False,auto_now=False,blank=True)
 
     def __str__(self):

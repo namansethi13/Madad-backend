@@ -17,6 +17,8 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated   
 from rest_framework.response import Response
 from rest_framework import generics
+import os
+import uuid
 specialCharacters="!@#$%^&*?//"
 
 # Register API
@@ -58,13 +60,17 @@ class RegisterAPI(generics.GenericAPIView):
         # Check if profile_picture field exists in the request data
         if 'profile_picture' in request.data:
             profile_picture = request.data['profile_picture']
+            filename, ext = os.path.splitext(profile_picture.name)
+            unique_filename = f"{validated_data['username']}_{uuid.uuid4().hex}{ext}"
+            # Rename the file within the request.data
+            request.data['profile_picture'].name = unique_filename
 
             # Create the UserDetails instance with profile picture
             user_details = UserDetails.objects.create(
                 user=user,
                 bio='',
                 is_email_verified=True,
-                profile_picture=profile_picture
+                profile_picture=request.data['profile_picture']
             )
         else:
             # Create the UserDetails instance without profile picture
