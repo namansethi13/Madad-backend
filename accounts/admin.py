@@ -5,5 +5,3 @@ from .models import NotificationModel
 admin.site.register(UserDetails)
 admin.site.register(NotificationModel)
 
-# Register your models here.
-admin.site.register(UserDetails)
