@@ -72,6 +72,7 @@ def submitrating(request, donation_id):
             print("userdetails.rating",userdetails.rating)
             userdetails.save()
             print("saved")
+
         # else :
         #     userdetails.rating+=int(request.data['rating'])
         #     print("userdetails.rating",userdetails.rating)
@@ -96,7 +97,7 @@ def totalrating(request, id,donation):
     print("the instrance uyser ",instanceuser)
     donor = donation.createdby
     print(donor)
-    userdetails = UserDetails.objects.get(user=instanceuser)
+    userdetails = UserDetails.objects.get(user=donor)
     print("the userdetailsuser ",userdetails)
     count_ratings = Rating.objects.filter(donor=donor).count()
     print(count_ratings)
