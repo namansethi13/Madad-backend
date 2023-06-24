@@ -7,7 +7,8 @@ urlpatterns = [
     path('',views.showdonations,name='showdonations'),
     path('userdonations',views.showdonations,name='showdonations'),
     path('updatedonation/<int:id>',views.updatedonation,name='updatedonation'),
-    path('deletedonation/<int:id>',views.deletedonation,name='deletedonation')
+    path('deletedonation/<int:id>',views.deletedonation,name='deletedonation'),
+    path('rate/<int:donation_id>', views.submitrating, name='submitrating')
 
 ]
 #urlpatterns=urlpatterns+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
