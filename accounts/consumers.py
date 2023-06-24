@@ -59,6 +59,7 @@ class NotifyConsumer(WebsocketConsumer):
         print("json =", text_data_json)
         id = text_data_json['id']
 
+
         self.update_notification(id)
         self.get_unseen_notification(self.scope["user"])
 
