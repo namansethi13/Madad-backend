@@ -2,14 +2,14 @@ from django.shortcuts import render
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer , ChangePasswordSerializer
+from .serializers import UserSerializer, RegisterSerializer , ChangePasswordSerializer ,NotificationSerializer
 from rest_framework import permissions
 from django.contrib.auth import login
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
-from .models import UserDetails
+from .models import UserDetails,NotificationModel
 from django.core.exceptions import PermissionDenied
 from rest_framework import status
 from django.contrib.auth.tokens import default_token_generator
@@ -19,6 +19,8 @@ from rest_framework.response import Response
 from rest_framework import generics
 import os
 import uuid
+from django.views.decorators.csrf import csrf_exempt
+
 specialCharacters="!@#$%^&*?//"
 
 # Register API
@@ -142,5 +144,30 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
-def getuser(request):
-    return Response({"user": request.user.username})
+def getuser(request,id):
+    user = User.objects.get(id=id)
+    s = UserSerializer(user)
+    return Response({"user": s.data})
+
+
+# @permission_classes([permissions.IsAuthenticated])
+def notifications(request):
+    notifications = NotificationModel.objects.filter(user = request.user)
+    messages = serializers.serialize("json", notifications)
+
+    new_messages = []
+    for msg in json.loads(messages):
+        new_messages.append({
+                "id" : msg["pk"],
+                "heading" : msg['fields']['heading'],
+                "body" : msg['fields']['body'],
+                "is_seen" : msg['fields']['is_seen'],
+        })
+    return Response({'notifications': new_messages})
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def user_notification(request):
+    user = request.user
+    notifications = NotificationModel.objects.filter(user=user)
+    serializer = NotificationSerializer(notifications , many = True)
+    return Response(serializer.data)
