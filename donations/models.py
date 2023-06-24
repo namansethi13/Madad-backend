@@ -14,3 +14,19 @@ class Donation(models.Model):
 
     def __str__(self):
         return "%s" %(self.item_name)
+    
+class Rating(models.Model):
+    
+    donor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='donations', null=True, blank=True)
+    claimedby= models.ForeignKey(User, on_delete=models.CASCADE, related_name='claimed_donations', null=True, blank=True)
+    donation = models.ForeignKey(Donation, on_delete=models.CASCADE)
+    rating = models.IntegerField(null=True)
+    
+    def __str__(self):
+        return f"Rating: {self.rating} for Donation: {self.donation}"
+    
+
+
+    
+
+

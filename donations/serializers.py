@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Donation
+from .models import Donation,Rating
 class DonationSerializer(serializers.ModelSerializer):
     item_picture = serializers.ImageField(required=True)
     class Meta:
@@ -11,6 +11,8 @@ class AllDonationSerializer(serializers.ModelSerializer):
         model = Donation
         fields ='__all__'
 
-        
-    
 
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ('rating',)
