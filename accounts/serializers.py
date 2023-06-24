@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-
+from .models import NotificationModel
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,3 +29,9 @@ class ChangePasswordSerializer(serializers.Serializer):
     """
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificationModel
+        fields = '__all__'
