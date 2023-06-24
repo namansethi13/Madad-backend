@@ -67,10 +67,14 @@ def submitrating(request, donation_id):
     if serializer.is_valid()and not(rating_exists):
         serializer.save(donation=donation, claimedby=user,donor=donation.createdby)
         res = {'msg': 'rated succesfully','rating':request.data['rating']}
-        if userdetails.rating is None:
-            userdetails.rating=int(request.data['rating'])
-            print("userdetails.rating",userdetails.rating)
-            userdetails.save()
+        donor = donation.createdby
+        print(donor)
+        donoruserdetails = UserDetails.objects.get(user=donor)
+        
+        if donoruserdetails.rating is None:
+            donoruserdetails.rating=int(request.data['rating'])
+            print("userdetails.rating",donoruserdetails.rating)
+            donoruserdetails.save()
             print("saved")
 
         # else :
