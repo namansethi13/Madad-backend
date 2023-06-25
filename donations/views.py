@@ -27,28 +27,31 @@ def showdonations(request,id=None):
 @api_view(['PUT'])
 @permission_classes([permissions.IsAuthenticated])
 
-def updatedonation(request,id):
-    if id is not None :
-            eve=Donation.objects.get(d_id=id)
-            serializer=DonationSerializer(eve,data=request.data,partial=True)#model data to python data 
-            if serializer.is_valid():
-                serializer.save()
-                res = {'msg': 'updated succesfully'}
-                return Response(res)
-            else:
-                return Response(serializer.errors, status=400)
+def updatedonation(request, id):
+    try:
+        eve = Donation.objects.get(d_id=id, createdby=request.user)
+        serializer = DonationSerializer(eve, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            res = {'msg': 'updated successfully'}
+            return Response(res)
+        else:
+            return Response(serializer.errors, status=400)
+    except Donation.DoesNotExist:
+        res = {'msg': 'Donation not found or you are not authorized to update it.'}
+        return Response(res, status=404)
                 
 @api_view(['DELETE'])
 @permission_classes([permissions.IsAuthenticated])
-
-def deletedonation(request,id):
-    if id is not None :
-            boo=Donation.objects.get(d_id=id)
-            boo.delete()
-            res = {'msg': 'deleted succesfully'}
-            return Response(res)
-    res = {'msg': 'not able to delete the book !some errror occured'}
-    return Response(res, status=400)
+def deletedonation(request, id):
+    try:
+        boo = Donation.objects.get(d_id=id, createdby=request.user)
+        boo.delete()
+        res = {'msg': 'deleted successfully'}
+        return Response(res)
+    except Donation.DoesNotExist:
+        res = {'msg': 'Donation not found or you are not authorized to delete it.'}
+        return Response(res, status=404)
 
 
 @api_view(['POST'])
