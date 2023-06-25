@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer , ChangePasswordSerializer ,NotificationSerializer
+from .serializers import UserSerializer, RegisterSerializer , ChangePasswordSerializer ,NotificationSerializer, UserDetailSerializer
 from rest_framework import permissions
 from django.contrib.auth import login
 from rest_framework.decorators import api_view, permission_classes
@@ -149,7 +149,12 @@ def getuser(request,id):
     s = UserSerializer(user)
     return Response({"user": s.data})
 
-
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def getprofile(request):
+    user = request.user
+    s = UserSerializer(user)
+    return Response({"user": s.data})
 # @permission_classes([permissions.IsAuthenticated])
 def notifications(request):
     notifications = NotificationModel.objects.filter(user = request.user)
@@ -171,3 +176,27 @@ def user_notification(request):
     notifications = NotificationModel.objects.filter(user=user)
     serializer = NotificationSerializer(notifications , many = True)
     return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def updateprofile(request):
+    user = request.user
+    user_details = UserDetails.objects.get(user=user)
+    user.first_name = request.data.get('first_name', user.first_name)
+    user.last_name = request.data.get('last_name', user.last_name)
+    user_details.bio = request.data.get('bio', user_details.bio)
+    
+    # Handle profile picture update
+    profile_picture = request.data.get('profile_picture')
+    if profile_picture:
+        # Rename the profile picture file
+        filename, ext = os.path.splitext(profile_picture.name)
+        unique_filename = f"{user.username}_{uuid.uuid4().hex}{ext}"
+        profile_picture.name = unique_filename
+        user_details.profile_picture = profile_picture
+    
+    user.save()
+    user_details.save()
+    
+    # Return the updated user details if needed
+    return Response({'msg':'updated'})
