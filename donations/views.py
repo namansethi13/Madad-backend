@@ -11,6 +11,7 @@ from accounts.models import UserDetails
 import os
 import uuid
 from django.shortcuts import get_object_or_404
+from accounts.models import NotificationModel
 @api_view(['GET'])
 def showdonations(request,id=None):
     
@@ -23,6 +24,12 @@ def showdonations(request,id=None):
         return Response(serializer.data)
     eve=Donation.objects.all()
     serializer=AllDonationSerializer(eve,many=True)
+    return Response(serializer.data)
+@api_view(['GET'])
+def showdonationsforuser(request,user_id):
+    user = User.objects.get(id=user_id)
+    donation = Donation.objects.filter(createdby=user)
+    serializer = AllDonationSerializer(donation,many=True)
     return Response(serializer.data)
 @api_view(['PUT'])
 @permission_classes([permissions.IsAuthenticated])
@@ -56,13 +63,18 @@ def deletedonation(request, id):
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
-def submitrating(request, donation_id):
+def submitrating(request, noti_id):
     serializer = RatingSerializer(data=request.data)
     print(serializer)
     user = get_object_or_404(User, id=request.user.id)
     userdetails = UserDetails.objects.get(user=user)
     print(user)
-    donation = get_object_or_404(Donation, d_id=donation_id)
+    notification = NotificationModel.objects.get(id=noti_id)
+    if notification.is_approved == False or notification.requested_by != request.user :
+        res = {"msg":"You can't rate this donation"}
+        return Response(res)
+
+    donation = notification.donation
     rating_exists = Rating.objects.filter(claimedby=user, donation=donation).exists()
     print(donation)
     
@@ -137,7 +149,38 @@ def createdonation(request):
         return Response(res)
     else:
          return Response(serializer.errors, status=400)
-        
 
-      
+@api_view(['POST'])       
+@permission_classes([permissions.IsAuthenticated])
+def claimdonation(request, donation_id):
+    donation = Donation.objects.get(d_id=donation_id)
+    if donation.createdby == request.user:
+        res = {'msg': 'You can\'t claim your own donation'}
+        return Response(res)
+    
+    heading = request.data.get('heading', '')
+    body = request.data.get('body', '')
+    notification = NotificationModel.objects.create(user=donation.createdby, donation=donation , requested_by=request.user ,heading=heading,body=body)
+    notification.save()
+    res = {'msg':'request sent'}
+    return Response(res)
 
+@api_view(['GET'])       
+@permission_classes([permissions.IsAuthenticated])
+def approvenoti(request, noti_id):
+    notification = NotificationModel.objects.get(id=noti_id)
+    if(notification.user != request.user):
+        res = {'msg':'You can only approve your own requests'}
+        return Response(res)
+    notification.is_approved = True
+    notification.save()
+    #send notification to the requester with email and all
+    notificationapr = NotificationModel.objects.create(user=notification.requested_by,heading=f"Your request has been approved by {request.user.username} for {notification.donation.item_name}"
+     , body=f"Here are the contact details Email :{request.user.email}",is_req=False)
+    notificationapr.save()
+    #send notification for rating
+    notificationrate = NotificationModel.objects.create(user=notification.requested_by,heading=f"Please rate {request.user.username} for {notification.donation.item_name}"
+     , body=f"api/accounts/rate/{notification.id}",is_req=False)
+    notificationapr.save()
+    res = {"msg":"approved"}
+    return Response(res)
