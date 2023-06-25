@@ -5,14 +5,26 @@ from .models import UserDetails
 
 from .models import NotificationModel
 # User Serializer
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email')
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetails
-        fields = ('user', 'bio')
+        fields = ('bio', 'profile_picture', 'rating')
+
+class UserSerializer(serializers.ModelSerializer):
+    user_detail = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'user_detail' , 'first_name' , 'last_name')
+
+    def get_user_detail(self, obj):
+        user = self.instance
+        user_details = UserDetails.objects.get(user=user)
+        if user_details:
+            return UserDetailSerializer(user_details).data
+        return None
+
+
 
 
 # Register Serializer

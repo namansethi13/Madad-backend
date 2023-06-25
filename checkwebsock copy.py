@@ -3,7 +3,7 @@ import asyncio
 import websockets
 
 async def connect_to_websocket():
-    url = "ws://127.0.0.1:8000/ws/notify-socket/?token=24c21dda66ec26516973dab3407cc87af1cc6e7a0ffe22866aa7a488a4377f18"
+    url = "ws://127.0.0.1:8000/ws/notify-socket/?token=95f377c1df11a436f0abf9fffc604218237417de0bfd295eb8117b2fda3821e4"
 
     async with websockets.connect(url) as websocket:
         while True:

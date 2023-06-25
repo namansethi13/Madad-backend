@@ -24,11 +24,13 @@ class UserDetails(models.Model):
 
 class NotificationModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    donation = models.ForeignKey(Donation , on_delete=models.CASCADE)
-    requested_by = models.ForeignKey(User , on_delete=models.CASCADE, related_name="requested_by")
+    donation = models.ForeignKey(Donation , on_delete=models.CASCADE,null=True)
+    requested_by = models.ForeignKey(User , on_delete=models.CASCADE, related_name="requested_by",null=True)
     heading = models.CharField(max_length=255)
     body = models.TextField(blank=True, null=True)
     is_seen = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
+    is_req = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return self.heading
