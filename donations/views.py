@@ -12,7 +12,6 @@ import os
 import uuid
 from django.shortcuts import get_object_or_404
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
 def showdonations(request,id=None):
     
     if id is not None :
