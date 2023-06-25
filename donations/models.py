@@ -11,6 +11,7 @@ class Donation(models.Model):
     Location=models.TextField()
     posted_date=models.DateField("startdate(mm/dd/yyyy)",auto_now=True)
     # end_date=models.DateField("enddate(mm/dd/yyyy)",auto_now_add=False,auto_now=False,blank=True)
+    is_claimed=models.BooleanField(default=False)
 
     def __str__(self):
         return "%s" %(self.item_name)
