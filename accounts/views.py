@@ -143,7 +143,6 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
 def getuser(request,id):
     user = User.objects.get(id=id)
     s = UserSerializer(user)
