@@ -12,3 +12,7 @@
 
  <h2>Deployed link:</h2>
  https://shareaid.vercel.app/
+
+  <h2>Frontend repo: </h2>
+https://github.com/Manan-Bhatia/Donation-App-Frontend
+
