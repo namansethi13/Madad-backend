@@ -3,7 +3,7 @@ import asyncio
 import websockets
 
 async def connect_to_websocket():
-    url = "ws://127.0.0.1:8000/ws/notify-socket/?token=95f377c1df11a436f0abf9fffc604218237417de0bfd295eb8117b2fda3821e4"
+    url = "ws://shareaid.pythonanywhere.com/ws/notify-socket/?token=aeda89b911650f65a1dc088aa6978ae34e023e52dfc47d40946b6a4f8df13803"
 
     async with websockets.connect(url) as websocket:
         while True:

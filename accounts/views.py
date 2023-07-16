@@ -41,6 +41,9 @@ class RegisterAPI(generics.GenericAPIView):
         # Create the user instance
         
         password = validated_data['password']
+        confirm_password = validated_data['confirm_password']
+        if password != confirm_password:
+            return Response({"error": "password and confirm password don't match"}, status=status.HTTP_400_BAD_REQUEST)
         if len(password) <8:
              return Response({"error": "password should be greater than 8 characters"}, status=status.HTTP_400_BAD_REQUEST)
         elif(any(char.isalpha() for char in password) == False):
@@ -59,29 +62,6 @@ class RegisterAPI(generics.GenericAPIView):
             email=validated_data['email'],
             password=validated_data['password']
         )
-        # Check if profile_picture field exists in the request data
-        if 'profile_picture' in request.data:
-            profile_picture = request.data['profile_picture']
-            filename, ext = os.path.splitext(profile_picture.name)
-            unique_filename = f"{validated_data['username']}_{uuid.uuid4().hex}{ext}"
-            # Rename the file within the request.data
-            request.data['profile_picture'].name = unique_filename
-
-            # Create the UserDetails instance with profile picture
-            user_details = UserDetails.objects.create(
-                user=user,
-                bio='',
-                is_email_verified=True,
-                profile_picture=request.data['profile_picture']
-            )
-        else:
-            # Create the UserDetails instance without profile picture
-            user_details = UserDetails.objects.create(
-                user=user,
-                bio='',
-                is_email_verified=True
-            )
-
         token = default_token_generator.make_token(user)
 
         return Response({
@@ -99,12 +79,6 @@ class LoginAPI(KnoxLoginView):
         serializer = AuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        user_details = user.user_details.get()
-        if not user_details.is_email_verified:
-             return Response(
-                {"error": "Email is not verified."},
-                status=status.HTTP_403_FORBIDDEN
-            )
         login(request, user)
         return super(LoginAPI, self).post(request, format=None)
 
