@@ -143,14 +143,14 @@ def createdonation(request):
         user=User.objects.get(id=request.user.id)
         item_picture = request.data['item_picture']
         filename, ext = os.path.splitext(item_picture.name)
-        unique_filename = f"{request.user.username}_{validated_data['item_name']}_{uuid.uuid4().hex}{ext}"
-        request.data['item_picture'].name = unique_filename
+        # unique_filename = f"{request.user.username}_{validated_data['item_name']}_{uuid.uuid4().hex}{ext}"
+        # request.data['item_picture'].name = unique_filename
         im = Image.open(item_picture)
         if im.mode != 'RGB':
             im = im.convert('RGB')
         im_io = BytesIO() 
         im.save(im_io, 'JPEG', quality=60) 
-        new_image = File(im_io, name=image.name)
+        new_image = File(im_io, name=f"{request.user.username}_{validated_data['item_name']}_{uuid.uuid4().hex}")
         request.data['item_picture'] = new_image
         instance=Donation.objects.create(createdby=user,item_name=validated_data['item_name'],item_desc=validated_data['item_desc'],Location=validated_data['Location'],item_picture=request.data['item_picture'])
         instance.save()
