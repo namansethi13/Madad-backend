@@ -42,9 +42,6 @@ class RegisterAPI(generics.GenericAPIView):
         # Create the user instance
         
         password = validated_data['password']
-        confirm_password = validated_data['confirm_password']
-        if password != confirm_password:
-            return Response({"error": "password and confirm password don't match"}, status=status.HTTP_400_BAD_REQUEST)
         if len(password) <8:
              return Response({"error": "password should be greater than 8 characters"}, status=status.HTTP_400_BAD_REQUEST)
         elif(any(char.isalpha() for char in password) == False):
