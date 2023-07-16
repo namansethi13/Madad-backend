@@ -12,6 +12,8 @@ import os
 import uuid
 from django.shortcuts import get_object_or_404
 from accounts.models import NotificationModel
+from io import BytesIO  #basic input/output operation
+from PIL import Image #Imported to compress images
 @api_view(['GET'])
 def showdonations(request,id=None):
     
@@ -142,7 +144,11 @@ def createdonation(request):
         filename, ext = os.path.splitext(item_picture.name)
         unique_filename = f"{request.user.username}_{validated_data['item_name']}_{uuid.uuid4().hex}{ext}"
         request.data['item_picture'].name = unique_filename
-
+        im = Image.open(item_picture)
+        im_io = BytesIO() 
+        im.save(im_io, 'JPEG', quality=60) 
+        new_image = File(im_io, name=image.name)
+        request.data['item_picture'] = new_image
         instance=Donation.objects.create(createdby=user,item_name=validated_data['item_name'],item_desc=validated_data['item_desc'],Location=validated_data['Location'],item_picture=request.data['item_picture'])
         instance.save()
         res = {'msg': 'created successfully'}

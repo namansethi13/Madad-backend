@@ -20,7 +20,8 @@ from rest_framework import generics
 import os
 import uuid
 from django.views.decorators.csrf import csrf_exempt
-
+from io import BytesIO  #basic input/output operation
+from PIL import Image #Imported to compress images
 specialCharacters="!@#$%^&*?//"
 
 # Register API
@@ -167,6 +168,12 @@ def updateprofile(request):
         unique_filename = f"{user.username}_{uuid.uuid4().hex}{ext}"
         profile_picture.name = unique_filename
         user_details.profile_picture = profile_picture
+
+        im = Image.open(profile_picture)
+        im_io = BytesIO() 
+        im.save(im_io, 'JPEG', quality=60) 
+        new_image = File(im_io, name=image.name)
+        user_details.profile_picture = new_image
     
     user.save()
     user_details.save()
