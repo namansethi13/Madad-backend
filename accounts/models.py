@@ -52,7 +52,7 @@ def send_notification(sender, instance, created, **kwargs):
             messages.append(message)
 
         async_to_sync(channel_layer.group_send)(
-            group=instance.user.username,
+            group=instance.user.username.encode('utf-8'),
             message={
                 'type': 'chat_message',
                 'messages': messages,
