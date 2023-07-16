@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404
 from accounts.models import NotificationModel
 from io import BytesIO  #basic input/output operation
 from PIL import Image #Imported to compress images
+from django.core.files import File
 @api_view(['GET'])
 def showdonations(request,id=None):
     
