@@ -61,7 +61,8 @@ class RegisterAPI(generics.GenericAPIView):
             password=validated_data['password']
         )
         token = default_token_generator.make_token(user)
-
+        user_details = UserDetails.objects.create(user=user, is_email_verified=True, rating=0, bio="", profile_picture=None)
+        user_details.save()
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": AuthToken.objects.create(user)[1]
