@@ -145,7 +145,7 @@ def createdonation(request):
         unique_filename = f"{request.user.username}_{validated_data['item_name']}_{uuid.uuid4().hex}{ext}"
         request.data['item_picture'].name = unique_filename
         im = Image.open(item_picture)
-        if img.mode != 'RGB':
+        if im.mode != 'RGB':
             im = im.convert('RGB')
         im_io = BytesIO() 
         im.save(im_io, 'JPEG', quality=60) 
