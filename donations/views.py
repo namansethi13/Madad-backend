@@ -165,7 +165,7 @@ def claimdonation(request, donation_id):
     donation = Donation.objects.get(d_id=donation_id)
     if donation.createdby == request.user:
         res = {'msg': 'You can\'t claim your own donation'}
-        return Response(res)
+        return Response(res , status=400)
     
     heading = request.data.get('heading', '')
     body = request.data.get('body', '')
