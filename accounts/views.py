@@ -22,6 +22,8 @@ import uuid
 from django.views.decorators.csrf import csrf_exempt
 from io import BytesIO  #basic input/output operation
 from PIL import Image #Imported to compress images
+from django.core.mail import send_mail
+from django.conf import settings
 specialCharacters="!@#$%^&*?//"
 
 # Register API
@@ -170,7 +172,7 @@ def updateprofile(request):
         im = Image.open(profile_picture)
         im_io = BytesIO() 
         im.save(im_io, 'JPEG', quality=60) 
-        new_image = File(im_io, name=image.name)
+        new_image = File(im_io, name=unique_filename)
         user_details.profile_picture = new_image
     
     user.save()
