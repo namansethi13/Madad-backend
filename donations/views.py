@@ -15,6 +15,8 @@ from accounts.models import NotificationModel
 from io import BytesIO  #basic input/output operation
 from PIL import Image #Imported to compress images
 from django.core.files import File
+from django.core.mail import send_mail
+from django.conf import settings
 @api_view(['GET'])
 def showdonations(request,id=None):
     
@@ -88,17 +90,17 @@ def submitrating(request, noti_id):
         print(donor)
         donoruserdetails = UserDetails.objects.get(user=donor)
         
-        if donoruserdetails.rating is None:
+        if donoruserdetails.rating is None or donoruserdetails.rating==0:
             donoruserdetails.rating=int(request.data['rating'])
             print("userdetails.rating",donoruserdetails.rating)
             donoruserdetails.save()
             print("saved")
 
-        # else :
-        #     userdetails.rating+=int(request.data['rating'])
-        #     print("userdetails.rating",userdetails.rating)
-        #     userdetails.save()
-        #     print("saved")
+        else :
+            userdetails.rating+=int(request.data['rating'])
+            print("userdetails.rating",userdetails.rating)
+            userdetails.save()
+            print("saved")
              
         
         totalrating(request=request,id=user,donation=donation)
@@ -171,6 +173,11 @@ def claimdonation(request, donation_id):
     body = request.data.get('body', '')
     notification = NotificationModel.objects.create(user=donation.createdby, donation=donation , requested_by=request.user ,heading=heading,body=body)
     notification.save()
+    subject = f"MADAD : You have a new request for {donation.item_name} by {request.user}"
+    message = f"{request.user} has requested for {donation.item_name}\n\n{heading}\n{body}\n\nYou can contact {request.user} by: {request.user.email}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [donation.createdby.email]
+    send_mail( subject, message, email_from, recipient_list )
     res = {'msg':'request sent'}
     return Response(res)
 
@@ -191,5 +198,16 @@ def approvenoti(request, noti_id):
     notificationrate = NotificationModel.objects.create(user=notification.requested_by,heading=f"Please rate {request.user.username} for {notification.donation.item_name}"
      , body=f"api/accounts/rate/{notification.id}",is_req=False)
     notificationapr.save()
+    subject = f"MADAD : Your request for {notification.donation.item_name} has been approved by {request.user}"
+    message = f"Your request for {notification.donation.item_name} has been approved by {request.user}\n\nYou can contact {request.user} by: {request.user.email}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [notification.requested_by.email]
+    send_mail( subject, message, email_from, recipient_list )
     res = {"msg":"approved"}
     return Response(res)
+
+@api_view(['GET'])
+def topdonations(request):
+    donations = Donation.objects.order_by('?')[:4]
+    serializer = AllDonationSerializer(donations,many=True)
+    return Response(serializer.data)
