@@ -170,6 +170,8 @@ def updateprofile(request):
         user_details.profile_picture = profile_picture
 
         im = Image.open(profile_picture)
+        if im.mode != 'RGB':
+            im = im.convert('RGB')
         im_io = BytesIO() 
         im.save(im_io, 'JPEG', quality=60) 
         new_image = File(im_io, name=unique_filename)
